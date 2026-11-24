@@ -1,0 +1,119 @@
+import apiClient from "@/api/apiClient";
+type GetAuctionItemsParams = {
+  page?: number;
+  limit?: number;
+  search?: string;
+  category?: string;
+};
+type GetAuctionItemParam = {
+  id?: string;
+};
+
+export const getAuctionItems = async (params: GetAuctionItemsParams = {}) => {
+  const response = await apiClient.get("/auction/items/live", { params });
+  return response.data;
+};
+export const getAuctionItem = async (params: GetAuctionItemParam = {}) => {
+  const response = await apiClient.get(`/auction/item/${params.id}`);
+  return response.data;
+};
+
+export type GetEndedAuctionsParams = {
+  page?: number;
+  limit?: number;
+};
+
+export const getEndedAuctions = async (params: GetEndedAuctionsParams = {}) => {
+  const response = await apiClient.get("/auction/ended", {
+    params,
+  });
+
+  return response.data;
+};
+
+export const createPaymentOrder = async (
+  params: { id: string },
+  bidAmount: number,
+) => {
+  const response = await apiClient.post(`/auction/${params.id}/payment-order`, {
+    bid_amount: bidAmount,
+  });
+
+  return response.data;
+};
+
+export const getPendingPaymentOrder = async (params: { id: string }) => {
+  const response = await apiClient.get(
+    `/auction/${params.id}/my-pending-payment-order`,
+  );
+
+  return response.data;
+};
+
+type SubmitPaymentTransactionParams =
+  | {
+      id: string;
+      transaction_reference: string;
+      ticket_code?: never;
+      bid_amount?: never;
+    }
+  | {
+      id: string;
+      ticket_code: string;
+      bid_amount: number;
+      transaction_reference?: never;
+    };
+
+export const submitPaymentTransaction = async (
+  params: SubmitPaymentTransactionParams,
+) => {
+  const body =
+    "ticket_code" in params
+      ? {
+          ticket_code: params.ticket_code,
+          bid_amount: params.bid_amount,
+        }
+      : {
+          transaction_reference: params.transaction_reference,
+        };
+
+  const response = await apiClient.post(
+    `/auction/${params.id}/submitpaymenttrxid`,
+    body,
+  );
+
+  return response.data;
+};
+
+export const deletePaymentOrder = async (params: { id: string }) => {
+  const response = await apiClient.delete(
+    `/auction/${params.id}/payment-order`,
+  );
+
+  return response.data;
+};
+export const getMyAuction = async () => {
+  const response = await apiClient.get("/auction/my-bids");
+  return response.data;
+};
+
+export const getPreviousAuctions = async (params?: {
+  limit?: number;
+  page?: number;
+}) => {
+  const response = await apiClient.get("/auction/previous", {
+    params,
+  });
+
+  return response.data;
+};
+export const getPreviousSetteldAuctions = async (params?: {
+  limit?: number;
+  page?: number;
+}) => {
+  const response = await apiClient.get("/auction/setteld", {
+    params,
+  });
+
+  return response.data;
+};
